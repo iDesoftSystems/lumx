@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+lumx_core = { path = "./../lumx_core" }
+sea-orm = { version = "1.0" }
+async-trait = { workspace = true }

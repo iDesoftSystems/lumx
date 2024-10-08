@@ -1,3 +1,6 @@
 [workspace]
 members = ["lumx_core", "lumx_sea"]
 resolver = "2"
+
+[workspace.dependencies]
+async-trait = "0.1"
