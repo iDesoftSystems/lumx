@@ -1,5 +1,5 @@
 [package]
-name = "lumx_sea"
+name = "lumx_sea_orm"
 version = "0.1.0"
 edition = "2021"
 
