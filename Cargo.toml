@@ -1,6 +1,3 @@
-[package]
-name = "lumx"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
+[workspace]
+members = ["lumx_core", "lumx_sea"]
+resolver = "2"
