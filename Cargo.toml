@@ -1,6 +1,7 @@
 [workspace]
-members = ["lumx_core", "lumx_sea_orm", "lumx_axum"]
+members = ["lumx_core", "lumx_sea_orm", "lumx_axum", "examples/*"]
 resolver = "2"
+exclude = ["examples/**"]
 
 [workspace.dependencies]
 async-trait = "0.1"

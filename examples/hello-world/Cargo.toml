@@ -1,0 +1,9 @@
+[package]
+name = "hello-world"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lumx_core = { path = "./../../lumx_core" }
+lumx_axum = { path = "./../../lumx_axum" }
+tokio = { version = "1.39", features = ["full"] }
