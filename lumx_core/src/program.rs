@@ -19,12 +19,12 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn new() -> AppBuilder {
-        AppBuilder::default()
+    pub fn new() -> ProgramBuilder {
+        ProgramBuilder::default()
     }
 }
 
-pub struct AppBuilder {
+pub struct ProgramBuilder {
     /// Components
     components: Registry<ComponentRef>,
 
@@ -35,10 +35,10 @@ pub struct AppBuilder {
     schedulers: Vec<Box<Scheduler>>,
 }
 
-unsafe impl Send for AppBuilder {}
-unsafe impl Sync for AppBuilder {}
+unsafe impl Send for ProgramBuilder {}
+unsafe impl Sync for ProgramBuilder {}
 
-impl Default for AppBuilder {
+impl Default for ProgramBuilder {
     fn default() -> Self {
         Self {
             components: Default::default(),
@@ -48,7 +48,7 @@ impl Default for AppBuilder {
     }
 }
 
-impl AppBuilder {
+impl ProgramBuilder {
     /// Add component to the registry
     pub fn add_component<T>(&mut self, component: T) -> &mut Self
     where
@@ -127,7 +127,7 @@ impl AppBuilder {
     /// Running
     pub async fn run(&mut self) {
         match self.inner_run().await {
-            Ok(_app) => {}
+            Ok(_program) => {}
             Err(err) => {
                 tracing::error!("{:?}", err);
             }
@@ -148,16 +148,16 @@ impl AppBuilder {
         self.schedule_server().await
     }
 
-    fn build_app(&mut self) -> Arc<Program> {
+    fn build_program(&mut self) -> Arc<Program> {
         let components = std::mem::take(&mut self.components);
         Arc::new(Program { components })
     }
 
     async fn schedule_server(&mut self) -> Result<Arc<Program>, ProgramFailure> {
-        let app = self.build_app();
+        let program = self.build_program();
 
         while let Some(task) = self.schedulers.pop() {
-            let poll_future = task(app.clone());
+            let poll_future = task(program.clone());
             let poll_future = Box::into_pin(poll_future);
 
             let spawn_res = tokio::spawn(poll_future)
@@ -170,6 +170,6 @@ impl AppBuilder {
             }
         }
 
-        Ok(app)
+        Ok(program)
     }
 }

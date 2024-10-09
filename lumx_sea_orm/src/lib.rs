@@ -1,7 +1,7 @@
 use std::env;
 
 use async_trait::async_trait;
-use lumx_core::{plugable::plugin::Plugin, program::AppBuilder, types::ProgramFailure};
+use lumx_core::{plugable::plugin::Plugin, program::ProgramBuilder, types::ProgramFailure};
 
 pub struct SeaOrmPlugin;
 
@@ -14,7 +14,7 @@ impl SeaOrmPlugin {
 
 #[async_trait]
 impl Plugin for SeaOrmPlugin {
-    async fn build(&self, app: &mut AppBuilder) {
+    async fn build(&self, app: &mut ProgramBuilder) {
         let db_url = self.database_url().expect("DATABASE_URL is not set in env");
 
         let db_conn = sea_orm::Database::connect(db_url)
