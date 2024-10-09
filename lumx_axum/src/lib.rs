@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use axum::{Extension, Router};
 use lumx_core::{
     plugable::plugin::Plugin,
-    program::{AppBuilder, Program},
+    program::{Program, ProgramBuilder},
     types::ProgramFailure,
 };
 
@@ -18,7 +18,7 @@ pub struct WebPlugin;
 
 #[async_trait]
 impl Plugin for WebPlugin {
-    async fn build(&self, app: &mut AppBuilder) {
+    async fn build(&self, app: &mut ProgramBuilder) {
         app.add_schedule(move |app_c: Arc<Program>| Box::new(Self::schedule(app_c)));
     }
 }

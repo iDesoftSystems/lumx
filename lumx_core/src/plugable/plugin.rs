@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::{any::Any, ops::Deref, sync::Arc};
 
-use crate::program::AppBuilder;
+use crate::program::ProgramBuilder;
 
 #[derive(Clone)]
 pub struct PluginRef(Arc<dyn Plugin>);
@@ -9,7 +9,7 @@ pub struct PluginRef(Arc<dyn Plugin>);
 #[async_trait]
 pub trait Plugin: Any + Send + Sync {
     /// Configure the [`App`] to which this plugin is added.
-    async fn build(&self, app: &mut AppBuilder);
+    async fn build(&self, app: &mut ProgramBuilder);
 
     /// Configures a name for the [`Plugin`] which is primarily used for checking plugin
     /// uniqueness and debugging.
