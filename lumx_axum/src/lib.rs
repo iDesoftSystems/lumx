@@ -3,15 +3,15 @@ use std::{net::SocketAddr, sync::Arc};
 use async_trait::async_trait;
 use axum::{Extension, Router};
 use lumx_core::{
-    app::{App, AppBuilder},
     plugable::plugin::Plugin,
+    program::{AppBuilder, Program},
     types::ProgramFailure,
 };
 
 #[derive(Clone)]
 pub struct AppState {
     /// App Registry Ref
-    pub app: Arc<App>,
+    pub app: Arc<Program>,
 }
 
 pub struct WebPlugin;
@@ -19,12 +19,12 @@ pub struct WebPlugin;
 #[async_trait]
 impl Plugin for WebPlugin {
     async fn build(&self, app: &mut AppBuilder) {
-        app.add_schedule(move |app_c: Arc<App>| Box::new(Self::schedule(app_c)));
+        app.add_schedule(move |app_c: Arc<Program>| Box::new(Self::schedule(app_c)));
     }
 }
 
 impl WebPlugin {
-    async fn schedule(app: Arc<App>) -> Result<String, ProgramFailure> {
+    async fn schedule(app: Arc<Program>) -> Result<String, ProgramFailure> {
         let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
         let listener = tokio::net::TcpListener::bind(addr)

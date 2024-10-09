@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::{any::Any, ops::Deref, sync::Arc};
 
-use crate::app::AppBuilder;
+use crate::program::AppBuilder;
 
 #[derive(Clone)]
 pub struct PluginRef(Arc<dyn Plugin>);

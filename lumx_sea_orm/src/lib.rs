@@ -1,7 +1,7 @@
 use std::env;
 
 use async_trait::async_trait;
-use lumx_core::{app::AppBuilder, plugable::plugin::Plugin, types::ProgramFailure};
+use lumx_core::{plugable::plugin::Plugin, program::AppBuilder, types::ProgramFailure};
 
 pub struct SeaOrmPlugin;
 
