@@ -1,0 +1,11 @@
+[package]
+name = "lumx_web_api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lumx_core = { path = "./../lumx_core" }
+axum = "0.7"
+async-trait = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
