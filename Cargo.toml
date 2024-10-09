@@ -1,5 +1,5 @@
 [workspace]
-members = ["lumx_core", "lumx_sea_orm", "lumx_web_api"]
+members = ["lumx_core", "lumx_sea_orm", "lumx_axum"]
 resolver = "2"
 
 [workspace.dependencies]
