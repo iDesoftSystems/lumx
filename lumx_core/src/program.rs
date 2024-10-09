@@ -13,12 +13,12 @@ use crate::{
 
 pub type Registry<T> = DashMap<String, T>;
 
-pub struct App {
+pub struct Program {
     /// Components
     components: Registry<ComponentRef>,
 }
 
-impl App {
+impl Program {
     pub fn new() -> AppBuilder {
         AppBuilder::default()
     }
@@ -97,7 +97,7 @@ impl AppBuilder {
     /// Add a scheduled task
     pub fn add_schedule<T>(&mut self, scheduler: T) -> &mut Self
     where
-        T: FnOnce(Arc<App>) -> Box<dyn Future<Output = Result<String, ProgramFailure>> + Send>
+        T: FnOnce(Arc<Program>) -> Box<dyn Future<Output = Result<String, ProgramFailure>> + Send>
             + 'static,
     {
         self.schedulers.push(Box::new(scheduler));
@@ -134,7 +134,7 @@ impl AppBuilder {
         }
     }
 
-    async fn inner_run(&mut self) -> Result<Arc<App>, ProgramFailure> {
+    async fn inner_run(&mut self) -> Result<Arc<Program>, ProgramFailure> {
         // 1. read env variables
         dotenvy::dotenv().ok();
 
@@ -148,12 +148,12 @@ impl AppBuilder {
         self.schedule_server().await
     }
 
-    fn build_app(&mut self) -> Arc<App> {
+    fn build_app(&mut self) -> Arc<Program> {
         let components = std::mem::take(&mut self.components);
-        Arc::new(App { components })
+        Arc::new(Program { components })
     }
 
-    async fn schedule_server(&mut self) -> Result<Arc<App>, ProgramFailure> {
+    async fn schedule_server(&mut self) -> Result<Arc<Program>, ProgramFailure> {
         let app = self.build_app();
 
         while let Some(task) = self.schedulers.pop() {
