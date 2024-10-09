@@ -1,6 +1,8 @@
-[package]
-name = "lumx"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = ["lumx_core", "lumx_sea_orm", "lumx_web_api"]
+resolver = "2"
 
-[dependencies]
+[workspace.dependencies]
+async-trait = "0.1"
+tokio = { version = "1.39", features = ["full"] }
+tracing = "0.1"
