@@ -120,8 +120,6 @@ impl ProgramBuilder {
             registered.insert(plugin.name().to_string());
             tracing::info!("{} plugin registered", plugin.name());
         }
-
-        // self.plugin_registry = registry;
     }
 
     /// Running
@@ -145,7 +143,7 @@ impl ProgramBuilder {
         self.build_plugins().await;
 
         // 4. schedule
-        self.schedule_server().await
+        self.schedule().await
     }
 
     fn build_program(&mut self) -> Arc<Program> {
@@ -153,7 +151,7 @@ impl ProgramBuilder {
         Arc::new(Program { components })
     }
 
-    async fn schedule_server(&mut self) -> Result<Arc<Program>, ProgramFailure> {
+    async fn schedule(&mut self) -> Result<Arc<Program>, ProgramFailure> {
         let program = self.build_program();
 
         while let Some(task) = self.schedulers.pop() {

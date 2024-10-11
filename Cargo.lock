@@ -741,7 +741,6 @@ version = "0.1.0"
 dependencies = [
  "lumx_axum",
  "lumx_core",
- "tokio",
 ]
 
 [[package]]
@@ -1081,6 +1080,14 @@ dependencies = [
  "libc",
  "wasi",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "modules-example"
+version = "0.1.0"
+dependencies = [
+ "lumx_axum",
+ "lumx_core",
 ]
 
 [[package]]
