@@ -22,6 +22,17 @@ impl Program {
     pub fn new() -> ProgramBuilder {
         ProgramBuilder::default()
     }
+
+    pub fn get_component<T>(&self) -> Option<Arc<T>>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        let component_name = std::any::type_name::<T>();
+        let pair = self.components.get(component_name)?;
+        let component_ref = pair.value().clone();
+
+        component_ref.downcast::<T>()
+    }
 }
 
 pub struct ProgramBuilder {
@@ -55,7 +66,7 @@ impl ProgramBuilder {
         T: std::any::Any + Send + Sync,
     {
         let component_name = std::any::type_name::<T>();
-        tracing::debug!("added component: {}", component_name);
+        log::debug!("added component: {}", component_name);
 
         if self.components.contains_key(component_name) {
             panic!("Error adding component {component_name}: component was already added in application");
@@ -81,7 +92,7 @@ impl ProgramBuilder {
 
     /// Add plugin
     pub fn add_plugin<T: Plugin>(&mut self, plugin: T) -> &mut Self {
-        tracing::debug!("added plugin {}", plugin.name());
+        log::debug!("added plugin {}", plugin.name());
 
         let plugin_name = plugin.name().to_string();
         if self.plugin_registry.contains_key(plugin.name()) {
@@ -108,18 +119,37 @@ impl ProgramBuilder {
     async fn build_plugins(&mut self) {
         let registry = std::mem::take(&mut self.plugin_registry);
 
-        let to_register = registry
+        let mut to_register = registry
             .iter()
             .map(|e| e.value().to_owned())
             .collect::<Vec<_>>();
 
         let mut registered: HashSet<String> = HashSet::new();
 
-        for plugin in to_register {
-            plugin.build(self).await;
-            registered.insert(plugin.name().to_string());
-            tracing::info!("{} plugin registered", plugin.name());
+        while !to_register.is_empty() {
+            let mut progress = false;
+            let mut next_round = vec![];
+
+            for plugin in to_register {
+                let deps = plugin.dependencies();
+                if deps.iter().all(|dep| registered.contains(*dep)) {
+                    plugin.build(self).await;
+                    registered.insert(plugin.name().to_string());
+                    log::info!("{} plugin registered", plugin.name());
+                    progress = true;
+                } else {
+                    next_round.push(plugin);
+                }
+            }
+
+            if !progress {
+                panic!("Cyclic dependency detected or missing dependencies for some plugins");
+            }
+
+            to_register = next_round;
         }
+
+        self.plugin_registry = registry;
     }
 
     /// Running
@@ -127,7 +157,7 @@ impl ProgramBuilder {
         match self.inner_run().await {
             Ok(_program) => {}
             Err(err) => {
-                tracing::error!("{:?}", err);
+                log::error!("{:?}", err);
             }
         }
     }
@@ -136,14 +166,22 @@ impl ProgramBuilder {
         // 1. read env variables
         dotenvy::dotenv().ok();
 
-        // 2. init tracing
-        super::tracing::init();
-
-        // 3. build plugins
+        // 2. build plugins
         self.build_plugins().await;
 
-        // 4. schedule
+        // 3. schedule
         self.schedule().await
+    }
+
+    pub async fn configure(&mut self) -> Arc<Program> {
+        // 1. read env variables
+        dotenvy::dotenv().ok();
+
+        // 2. build plugins
+        self.build_plugins().await;
+
+        // 3. build program
+        self.build_program()
     }
 
     fn build_program(&mut self) -> Arc<Program> {
@@ -163,8 +201,8 @@ impl ProgramBuilder {
                 .map_err(|err| ProgramFailure::Scheduler(err.to_string()))?;
 
             match spawn_res {
-                Ok(msg) => tracing::info!("scheduled result: {}", msg),
-                Err(err) => tracing::info!("{}", err),
+                Ok(msg) => log::info!("scheduled result: {}", msg),
+                Err(err) => log::info!("{}", err),
             }
         }
 
