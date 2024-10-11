@@ -12,16 +12,28 @@ cargo add lumx_axum
 You can now build your program and easily integrate plugins.
 
 ```rust
+use lumx_axum::{
+    axum::{routing, Router},
+    router::ProgramRoutable,
+    WebPlugin,
+};
+use lumx_core::{program::Program, tokio};
+
 #[tokio::main]
 async fn main() {
-    lumx_core::program::Program::new()
-        .add_plugin(lumx_axum::WebPlugin)
+    Program::new()
+        .add_router(router())
+        .add_plugin(WebPlugin)
         .run()
         .await
 }
+
+fn router() -> Router {
+    Router::new().route("/", routing::get(|| async { "Hello, world" }))
+}
 ```
 
-Start your app
+Start your app.
 
 ```bash
 cargo run
