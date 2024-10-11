@@ -3,3 +3,5 @@ pub mod program;
 pub mod scheduler;
 pub mod tracing;
 pub mod types;
+
+pub use tokio;
