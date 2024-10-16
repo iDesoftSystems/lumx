@@ -4,9 +4,12 @@
 
 ## Getting Started
 
-```bash
-cargo add lumx_core
-cargo add lumx_axum
+Add to your `Cargo.toml` dependencies:
+
+```yml
+[dependencies]
+lumx_core = { git = "https://github.com/iDesoftSystems/lumx.git", branch = "main" }
+lumx_axum = { git = "https://github.com/iDesoftSystems/lumx.git", branch = "main" }
 ```
 
 You can now build your program and easily integrate plugins.
@@ -14,8 +17,8 @@ You can now build your program and easily integrate plugins.
 ```rust
 use lumx_axum::{
     axum::{routing, Router},
+    plugin::WebPlugin,
     router::ProgramRoutable,
-    WebPlugin,
 };
 use lumx_core::{program::Program, tokio};
 
