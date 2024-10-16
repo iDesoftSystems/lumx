@@ -1,7 +1,7 @@
 use axum::Router;
-use lumx_core::program::ProgramBuilder;
+use lumx_core::program::{Program, ProgramBuilder};
 
-use crate::router::{ProgramRoutable, RouterRef};
+use crate::router::{EndpointsExposer, ProgramRoutable, RouterRef};
 
 impl ProgramRoutable for ProgramBuilder {
     fn add_router(&mut self, other_router: axum::Router) -> &mut Self {
@@ -18,5 +18,20 @@ impl ProgramRoutable for ProgramBuilder {
         }
 
         self
+    }
+}
+
+impl EndpointsExposer for Program {
+    fn endpoints(&self) -> axum::Router {
+        let router = self.get_component::<RouterRef>();
+        let router_registered = match router {
+            Some(rs) => {
+                let r_val = rs.0.read().unwrap();
+                r_val.to_owned()
+            }
+            None => Router::new(),
+        };
+
+        router_registered
     }
 }

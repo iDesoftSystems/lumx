@@ -3,7 +3,15 @@ name = "lumx_sea_orm"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+mysql = ["sea-orm/sqlx-mysql", "sea-orm/runtime-tokio-rustls"]
+sqlite = ["sea-orm/sqlx-sqlite", "sea-orm/runtime-tokio-rustls"]
+
 [dependencies]
 lumx_core = { path = "./../lumx_core" }
-sea-orm = { version = "1.0" }
+sea-orm = { version = "1.0", features = [
+    "sqlx-mysql",
+    "sqlx-sqlite",
+    "runtime-tokio-rustls",
+] }
 async-trait = { workspace = true }

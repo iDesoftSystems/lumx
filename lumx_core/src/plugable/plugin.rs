@@ -16,6 +16,12 @@ pub trait Plugin: Any + Send + Sync {
     fn name(&self) -> &str {
         std::any::type_name::<Self>()
     }
+
+    /// A list of plugins to depend on.
+    /// The plugin will be built after the plugins in this list
+    fn dependencies(&self) -> Vec<&str> {
+        vec![]
+    }
 }
 
 impl PluginRef {
