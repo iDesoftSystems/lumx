@@ -9,3 +9,4 @@ axum = "0.7"
 async-trait = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+serde = { workspace = true }
