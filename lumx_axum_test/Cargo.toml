@@ -1,0 +1,9 @@
+[package]
+name = "lumx_axum_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { workspace = true }
+lumx_core = { workspace = true }
+lumx_axum = { workspace = true }

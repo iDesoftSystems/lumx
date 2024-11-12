@@ -2,6 +2,7 @@ use dashmap::DashMap;
 use std::any::TypeId;
 use std::{collections::HashSet, future::Future, sync::Arc};
 
+use crate::types::GetComponentFailure;
 use crate::{
     plugable::{
         component::ComponentRef,
@@ -47,6 +48,16 @@ impl Program {
                 std::any::type_name::<T>()
             )
         })
+    }
+
+    /// Ge the component reference of the specified type.
+    /// If the component does not exist, it will return GetComponentFailure::ComponentNotExist.
+    pub fn try_get_component<T>(&self) -> Result<Arc<T>, GetComponentFailure>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.get_component()
+            .ok_or_else(|| GetComponentFailure::ComponentNotExist(std::any::type_name::<T>()))
     }
 }
 
@@ -117,6 +128,16 @@ impl ProgramBuilder {
                 std::any::type_name::<T>()
             )
         })
+    }
+
+    /// Ge the component reference of the specified type.
+    /// If the component does not exist, it will return GetComponentFailure::ComponentNotExist.
+    pub fn try_get_component<T>(&self) -> Result<Arc<T>, GetComponentFailure>
+    where
+        T: std::any::Any + Send + Sync,
+    {
+        self.get_component()
+            .ok_or_else(|| GetComponentFailure::ComponentNotExist(std::any::type_name::<T>()))
     }
 
     /// Add plugin
@@ -203,9 +224,9 @@ impl ProgramBuilder {
         self.schedule().await
     }
 
-    /// Unlike the [`run`] method, the `configure` method is suitable for applications that do not contain scheduling logic.
+    /// Unlike the [`run`] method, the [`build`] method is suitable for applications that do not contain scheduling logic.
     /// This method returns the built Program.
-    pub async fn configure(&mut self) -> Arc<Program> {
+    pub async fn build(&mut self) -> Arc<Program> {
         // 1. read env variables
         dotenvy::dotenv().ok();
 
