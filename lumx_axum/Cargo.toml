@@ -9,3 +9,5 @@ axum = "0.7"
 async-trait = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
+thiserror = { version = "2.0.11" }
+serde = { workspace = true }

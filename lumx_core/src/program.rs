@@ -1,21 +1,26 @@
-use std::{collections::HashSet, future::Future, sync::Arc};
+use std::{
+    any::{Any, TypeId},
+    collections::HashSet,
+    future::Future,
+    sync::Arc,
+};
 
 use dashmap::DashMap;
 
 use crate::{
     plugable::{
-        component::ComponentRef,
+        component::{ComponentRef, DynComponentRef},
         plugin::{Plugin, PluginRef},
     },
     scheduler::Scheduler,
     types::ProgramFailure,
 };
 
-pub type Registry<T> = DashMap<String, T>;
+pub type Registry<T> = DashMap<TypeId, T>;
 
 pub struct Program {
     /// Components
-    components: Registry<ComponentRef>,
+    components: Registry<DynComponentRef>,
 }
 
 impl Program {
@@ -23,21 +28,68 @@ impl Program {
         ProgramBuilder::default()
     }
 
-    pub fn get_component<T>(&self) -> Option<Arc<T>>
+    /// Get the component reference of the specified type
+    pub fn get_component_ref<T>(&self) -> Option<ComponentRef<T>>
+    where
+        T: Any + Send + Sync,
+    {
+        let component_id = TypeId::of::<T>();
+        let pair = self.components.get(&component_id)?;
+
+        let component_ref = pair.value().clone();
+        component_ref.downcast::<T>()
+    }
+
+    /// Get the component reference of the specified type.
+    /// If the component does not exist, it will return ProgramFailure::ComponentNotExist
+    pub fn try_get_component_ref<T>(&self) -> Result<ComponentRef<T>, ProgramFailure>
     where
         T: Clone + Send + Sync + 'static,
     {
-        let component_name = std::any::type_name::<T>();
-        let pair = self.components.get(component_name)?;
-        let component_ref = pair.value().clone();
+        self.get_component_ref().ok_or_else(|| {
+            ProgramFailure::ComponentNotExist(format!(
+                "{} component not exists",
+                std::any::type_name::<T>()
+            ))
+        })
+    }
 
-        component_ref.downcast::<T>()
+    /// Get the component of the specified type
+    pub fn get_component<T>(&self) -> Option<T>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        let component_ref = self.get_component_ref();
+        component_ref.map(|arc| T::clone(&arc))
+    }
+
+    /// Get the component of the specified type.
+    /// If the component does not exist, it will return ProgramFailure::ComponentNotExist
+    pub fn try_get_component<T>(&self) -> Result<T, ProgramFailure>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.get_component().ok_or_else(|| {
+            ProgramFailure::ComponentNotExist(format!(
+                "{} component not exists",
+                std::any::type_name::<T>()
+            ))
+        })
+    }
+
+    /// Is there a component of the specified type in the registry.
+    pub fn has_component<T>(&self) -> bool
+    where
+        T: Any + Send + Sync,
+    {
+        let component_id = TypeId::of::<T>();
+        self.components.contains_key(&component_id)
     }
 }
 
 pub struct ProgramBuilder {
     /// Components
-    components: Registry<ComponentRef>,
+    components: Registry<DynComponentRef>,
 
     /// Plugin
     pub(crate) plugin_registry: Registry<PluginRef>,
@@ -63,44 +115,105 @@ impl ProgramBuilder {
     /// Add component to the registry
     pub fn add_component<T>(&mut self, component: T) -> &mut Self
     where
-        T: std::any::Any + Send + Sync,
+        T: Clone + Any + Send + Sync,
     {
+        let component_id = TypeId::of::<T>();
         let component_name = std::any::type_name::<T>();
         log::debug!("added component: {}", component_name);
 
-        if self.components.contains_key(component_name) {
+        if self.components.contains_key(&component_id) {
             panic!("Error adding component {component_name}: component was already added in application");
         }
 
-        let component_name = component_name.to_string();
         self.components
-            .insert(component_name, ComponentRef::new(component));
+            .insert(component_id, DynComponentRef::new(component));
         self
     }
 
-    /// Get the component of the specified type
-    pub fn get_component<T>(&self) -> Option<Arc<T>>
+    /// Get the component reference of the specified type
+    pub fn get_component_ref<T>(&self) -> Option<ComponentRef<T>>
     where
-        T: std::any::Any + Send + Sync,
+        T: Any + Send + Sync,
     {
-        let component_name = std::any::type_name::<T>();
-        let pair = self.components.get(component_name)?;
-        let component_ref = pair.value().clone();
+        let component_id = TypeId::of::<T>();
+        let pair = self.components.get(&component_id)?;
 
+        let component_ref = pair.value().clone();
         component_ref.downcast::<T>()
+    }
+
+    /// Get the component reference of the specified type.
+    /// If the component does not exist, it will panic.
+    pub fn get_expect_component_ref<T>(&self) -> ComponentRef<T>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.get_component_ref().unwrap_or_else(|| {
+            panic!(
+                "{} component not exists in registry",
+                std::any::type_name::<T>()
+            )
+        })
+    }
+
+    /// Get the component reference of the specified type.
+    /// If the component does not exist, it will return ProgramFailure::ComponentNotExist
+    pub fn try_get_component_ref<T>(&self) -> Result<ComponentRef<T>, ProgramFailure>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.get_component_ref().ok_or_else(|| {
+            ProgramFailure::ComponentNotExist(format!(
+                "{} component not exists",
+                std::any::type_name::<T>()
+            ))
+        })
+    }
+
+    /// Get the component of the specified type
+    pub fn get_component<T>(&self) -> Option<T>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        let component_ref = self.get_component_ref();
+        component_ref.map(|arc| T::clone(&arc))
+    }
+
+    /// Get the component of the specified type.
+    /// If the component does not exist, it will return ProgramFailure::ComponentNotExist
+    pub fn try_get_component<T>(&self) -> Result<T, ProgramFailure>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.get_component().ok_or_else(|| {
+            ProgramFailure::ComponentNotExist(format!(
+                "{} component not exists",
+                std::any::type_name::<T>()
+            ))
+        })
+    }
+
+    /// Is there a component of the specified type in the registry.
+    pub fn has_component<T>(&self) -> bool
+    where
+        T: Any + Send + Sync,
+    {
+        let component_id = TypeId::of::<T>();
+        self.components.contains_key(&component_id)
     }
 
     /// Add plugin
     pub fn add_plugin<T: Plugin>(&mut self, plugin: T) -> &mut Self {
         log::debug!("added plugin {}", plugin.name());
 
-        let plugin_name = plugin.name().to_string();
-        if self.plugin_registry.contains_key(plugin.name()) {
+        let plugin_id = TypeId::of::<T>();
+        if self.plugin_registry.contains_key(&plugin_id) {
+            let plugin_name = plugin.name();
             panic!("Error adding plugin {plugin_name}: plugin was already added in application");
         }
 
         self.plugin_registry
-            .insert(plugin_name, PluginRef::new(plugin));
+            .insert(plugin_id, PluginRef::new(plugin));
 
         self
     }

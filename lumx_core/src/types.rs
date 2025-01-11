@@ -7,6 +7,7 @@ pub enum ProgramFailure {
     Serve(String),
     Unknown(String),
     Scheduler(String),
+    ComponentNotExist(String),
 }
 
 impl fmt::Display for ProgramFailure {
@@ -17,6 +18,7 @@ impl fmt::Display for ProgramFailure {
             ProgramFailure::Serve(msg) => write!(f, "{msg}"),
             ProgramFailure::Unknown(msg) => write!(f, "{msg}"),
             ProgramFailure::Scheduler(msg) => write!(f, "{msg}"),
+            ProgramFailure::ComponentNotExist(msg) => write!(f, "{msg}"),
         }
     }
 }
