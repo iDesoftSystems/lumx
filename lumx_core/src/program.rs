@@ -1,6 +1,6 @@
-use std::{collections::HashSet, future::Future, sync::Arc};
-
 use dashmap::DashMap;
+use std::any::TypeId;
+use std::{collections::HashSet, future::Future, sync::Arc};
 
 use crate::{
     plugable::{
@@ -11,7 +11,7 @@ use crate::{
     types::ProgramFailure,
 };
 
-pub type Registry<T> = DashMap<String, T>;
+pub type Registry<T> = DashMap<TypeId, T>;
 
 pub struct Program {
     /// Components
@@ -27,8 +27,8 @@ impl Program {
     where
         T: Clone + Send + Sync + 'static,
     {
-        let component_name = std::any::type_name::<T>();
-        let pair = self.components.get(component_name)?;
+        let component_id = TypeId::of::<T>();
+        let pair = self.components.get(&component_id)?;
         let component_ref = pair.value().clone();
 
         component_ref.downcast::<T>()
@@ -65,16 +65,16 @@ impl ProgramBuilder {
     where
         T: std::any::Any + Send + Sync,
     {
+        let component_id = TypeId::of::<T>();
         let component_name = std::any::type_name::<T>();
         log::debug!("added component: {}", component_name);
 
-        if self.components.contains_key(component_name) {
+        if self.components.contains_key(&component_id) {
             panic!("Error adding component {component_name}: component was already added in application");
         }
 
-        let component_name = component_name.to_string();
         self.components
-            .insert(component_name, ComponentRef::new(component));
+            .insert(component_id, ComponentRef::new(component));
         self
     }
 
@@ -83,24 +83,37 @@ impl ProgramBuilder {
     where
         T: std::any::Any + Send + Sync,
     {
-        let component_name = std::any::type_name::<T>();
-        let pair = self.components.get(component_name)?;
+        let component_id = TypeId::of::<T>();
+        let pair = self.components.get(&component_id)?;
         let component_ref = pair.value().clone();
 
         component_ref.downcast::<T>()
+    }
+
+    pub fn get_expect_component<T>(&self) -> Arc<T>
+    where
+        T: std::any::Any + Send + Sync,
+    {
+        self.get_component().unwrap_or_else(|| {
+            panic!(
+                "{} component not exists in registry",
+                std::any::type_name::<T>()
+            )
+        })
     }
 
     /// Add plugin
     pub fn add_plugin<T: Plugin>(&mut self, plugin: T) -> &mut Self {
         log::debug!("added plugin {}", plugin.name());
 
-        let plugin_name = plugin.name().to_string();
-        if self.plugin_registry.contains_key(plugin.name()) {
+        let plugin_id = TypeId::of::<T>();
+        if self.plugin_registry.contains_key(&plugin_id) {
+            let plugin_name = plugin.name();
             panic!("Error adding plugin {plugin_name}: plugin was already added in application");
         }
 
         self.plugin_registry
-            .insert(plugin_name, PluginRef::new(plugin));
+            .insert(plugin_id, PluginRef::new(plugin));
 
         self
     }
