@@ -182,7 +182,7 @@ impl ProgramBuilder {
         self.plugin_registry = registry;
     }
 
-    /// Running
+    /// The `run` method is suitable for applications that contain scheduling logic.
     pub async fn run(&mut self) {
         match self.inner_run().await {
             Ok(_program) => {}
@@ -203,6 +203,8 @@ impl ProgramBuilder {
         self.schedule().await
     }
 
+    /// Unlike the [`run`] method, the `configure` method is suitable for applications that do not contain scheduling logic.
+    /// This method returns the built Program.
     pub async fn configure(&mut self) -> Arc<Program> {
         // 1. read env variables
         dotenvy::dotenv().ok();
