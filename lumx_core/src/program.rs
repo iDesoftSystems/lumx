@@ -23,6 +23,7 @@ impl Program {
         ProgramBuilder::default()
     }
 
+    /// Get the component of the specified type
     pub fn get_component<T>(&self) -> Option<Arc<T>>
     where
         T: Clone + Send + Sync + 'static,
@@ -32,6 +33,20 @@ impl Program {
         let component_ref = pair.value().clone();
 
         component_ref.downcast::<T>()
+    }
+
+    /// Get the component reference of the specified type.
+    /// If the component does not exist, it will panic.
+    pub fn get_expect_component<T>(&self) -> Arc<T>
+    where
+        T: Clone + Send + Sync + 'static,
+    {
+        self.get_component().unwrap_or_else(|| {
+            panic!(
+                "{} component not exists in registry",
+                std::any::type_name::<T>()
+            )
+        })
     }
 }
 
@@ -90,6 +105,8 @@ impl ProgramBuilder {
         component_ref.downcast::<T>()
     }
 
+    /// Get the component reference of the specified type.
+    /// If the component does not exist, it will panic.
     pub fn get_expect_component<T>(&self) -> Arc<T>
     where
         T: std::any::Any + Send + Sync,
