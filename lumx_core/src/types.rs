@@ -1,4 +1,5 @@
 use core::fmt;
+use thiserror::Error;
 
 #[derive(Debug)]
 pub enum ProgramFailure {
@@ -19,4 +20,10 @@ impl fmt::Display for ProgramFailure {
             ProgramFailure::Scheduler(msg) => write!(f, "{msg}"),
         }
     }
+}
+
+#[derive(Error, Debug)]
+pub enum GetComponentFailure {
+    #[error("{0} component not exists in registry")]
+    ComponentNotExist(&'static str),
 }

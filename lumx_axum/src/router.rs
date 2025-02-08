@@ -14,8 +14,3 @@ pub trait ProgramRoutable {
     /// add route to app registry
     fn add_router(&mut self, other_router: axum::Router) -> &mut Self;
 }
-
-/// Axum endpoints
-pub trait EndpointsExposer {
-    fn endpoints(&self) -> axum::Router;
-}
