@@ -1,7 +1,10 @@
 [package]
 name = "lumx_sea_orm"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
 
 [features]
 mysql = ["sea-orm/sqlx-mysql", "sea-orm/runtime-tokio-rustls"]

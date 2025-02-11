@@ -9,6 +9,12 @@ members = [
 resolver = "2"
 exclude = ["examples/**"]
 
+[workspace.package]
+edition = "2021"
+license = "MIT"
+authors = ["edinsonjim"]
+repository = "https://github.com/iDesoftSystems/lumx"
+
 [workspace.dependencies]
 log = "0.4"
 env_logger = { version = "0.11.5" }
