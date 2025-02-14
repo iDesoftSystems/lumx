@@ -1,4 +1,3 @@
-use crate::{router::RouterRef, state::AppState};
 use axum::{async_trait, Extension, Router};
 use lumx_core::{
     plugable::plugin::Plugin,
@@ -9,6 +8,9 @@ use std::ops::Deref;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::trace::TraceLayer;
 use tracing::debug;
+
+use crate::middleware::state::StateLayer;
+use crate::{router::RouterRef, state::AppState};
 
 pub struct WebPlugin;
 
@@ -35,7 +37,10 @@ impl WebPlugin {
 
         debug!(?router, "registered routes");
         let router = router
-            .layer(Extension(AppState { app }))
+            .layer(Extension(AppState {
+                app: Arc::clone(&app),
+            }))
+            .layer(StateLayer::new(Arc::clone(&app)))
             .layer(TraceLayer::new_for_http());
 
         println!("Listening on {}", listener.local_addr().unwrap());
