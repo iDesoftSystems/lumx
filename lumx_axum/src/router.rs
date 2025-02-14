@@ -10,6 +10,8 @@ impl RouterRef {
     }
 
     pub fn add_router(&self, other_router: Router) {
+        println!("adding router: {:?}", other_router);
+
         let router_registered = self.0.read().unwrap().to_owned();
 
         let mut writer = self.0.write().unwrap();
