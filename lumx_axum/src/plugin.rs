@@ -1,11 +1,11 @@
-use std::{net::SocketAddr, sync::Arc};
-
 use axum::{async_trait, Extension, Router};
 use lumx_core::{
     plugable::plugin::Plugin,
     program::{Program, ProgramBuilder},
     types::ProgramFailure,
 };
+use std::ops::Deref;
+use std::{net::SocketAddr, sync::Arc};
 
 use crate::{router::RouterRef, state::AppState};
 
@@ -18,8 +18,14 @@ impl Plugin for WebPlugin {
 
         let router = match router {
             Some(rs) => {
-                let r_val = rs.0.read().unwrap();
-                r_val.to_owned()
+                let router_ref = rs.0.to_owned();
+                let router_mutex_guard = router_ref.lock().unwrap();
+                let router = router_mutex_guard.deref().to_owned();
+                router
+                // let r_val = rs.0.clone();
+                // let router = r_val.deref().to_owned();
+                //let r_val = rs.0.read().unwrap();
+                //r_val.to_owned()
             }
             None => Router::new(),
         };
