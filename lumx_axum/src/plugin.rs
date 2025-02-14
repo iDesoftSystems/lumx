@@ -36,6 +36,7 @@ impl WebPlugin {
             .await
             .expect(format!("bind tcp listener failed: {}", addr).as_str());
 
+        println!("routers: {:?}", router);
         let router = router.layer(Extension(AppState { app }));
 
         println!("Listening on {}", listener.local_addr().unwrap());
