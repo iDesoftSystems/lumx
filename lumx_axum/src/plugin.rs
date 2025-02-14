@@ -18,6 +18,8 @@ impl Plugin for WebPlugin {
 
         let router = match router {
             Some(rs) => {
+                println!("router_ref exists for plugin");
+
                 let router_ref = rs.0.to_owned();
                 let router_mutex_guard = router_ref.lock().unwrap();
                 let router = router_mutex_guard.deref().to_owned();
@@ -27,7 +29,10 @@ impl Plugin for WebPlugin {
                 //let r_val = rs.0.read().unwrap();
                 //r_val.to_owned()
             }
-            None => Router::new(),
+            None => {
+                println!("router_ref does not exists for build plugin");
+                Router::new()
+            }
         };
 
         app.add_schedule(move |app_c: Arc<Program>| Box::new(Self::schedule(app_c, router)));
@@ -42,7 +47,7 @@ impl WebPlugin {
             .await
             .expect(format!("bind tcp listener failed: {}", addr).as_str());
 
-        println!("routers: {:?}", router);
+        println!("listening routers: {:?}", router);
         let router = router.layer(Extension(AppState { app }));
 
         println!("Listening on {}", listener.local_addr().unwrap());
