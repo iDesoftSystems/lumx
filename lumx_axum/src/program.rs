@@ -5,6 +5,7 @@ use crate::router::{ProgramRoutable, RouterRef};
 
 impl ProgramRoutable for ProgramBuilder {
     fn add_router(&mut self, other_router: axum::Router) -> &mut Self {
+        println!("adding routing to components: {:?}", other_router);
         let router_ref = self.get_component::<RouterRef>();
 
         if let Some(rs) = router_ref {
@@ -12,9 +13,12 @@ impl ProgramRoutable for ProgramBuilder {
 
             //let mut rs_writer = rs.0.write().unwrap();
             //*rs_writer = Router::new().merge(router_registered).merge(other_router);
+            println!("adding to router ref: {:?}", other_router);
             rs.add_router(other_router)
         } else {
             let router = Router::new().merge(other_router);
+            println!("adding as new router ref");
+
             self.add_component(RouterRef::new(router));
         }
 
