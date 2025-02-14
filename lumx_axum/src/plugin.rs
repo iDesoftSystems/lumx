@@ -7,6 +7,7 @@ use lumx_core::{
     types::ProgramFailure,
 };
 
+use crate::middleware::state::StateLayer;
 use crate::{router::RouterRef, state::AppState};
 
 pub struct WebPlugin;
@@ -36,7 +37,11 @@ impl WebPlugin {
             .await
             .expect(format!("bind tcp listener failed: {}", addr).as_str());
 
-        let router = router.layer(Extension(AppState { app }));
+        let router = router
+            .layer(Extension(AppState {
+                app: Arc::clone(&app),
+            }))
+            .layer(StateLayer::new(Arc::clone(&app)));
 
         println!("Listening on {}", listener.local_addr().unwrap());
         println!("Ctrl-C to shutdown server");
