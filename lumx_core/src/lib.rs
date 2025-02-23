@@ -1,7 +1,7 @@
 pub mod plugable;
 pub mod program;
 pub mod scheduler;
-pub mod tracing;
+pub mod tracer;
 pub mod types;
 
 pub use async_trait;
