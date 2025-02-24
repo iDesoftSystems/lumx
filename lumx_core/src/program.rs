@@ -9,7 +9,6 @@ use crate::{
         plugin::{Plugin, PluginRef},
     },
     scheduler::Scheduler,
-    tracer,
     types::ProgramFailure,
 };
 
@@ -218,13 +217,10 @@ impl ProgramBuilder {
         // 1. read env variables
         dotenvy::dotenv().ok();
 
-        // 2. init and subscribe tracer
-        tracer::init();
-
-        // 3. build plugins
+        // 2. build plugins
         self.build_plugins().await;
 
-        // 4. schedule
+        // 3. schedule
         self.schedule().await
     }
 
@@ -234,13 +230,10 @@ impl ProgramBuilder {
         // 1. read env variables
         dotenvy::dotenv().ok();
 
-        // 2. init and subscribe tracer
-        tracer::init();
-
-        // 3. build plugins
+        // 2. build plugins
         self.build_plugins().await;
 
-        // 4. build program
+        // 3. build program
         self.build_program()
     }
 
