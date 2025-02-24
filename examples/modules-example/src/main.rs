@@ -5,6 +5,7 @@ use lumx_axum::{
     plugin::WebPlugin,
     router::ProgramRoutable,
 };
+use lumx_core::tracer::InitTracing;
 use lumx_core::{plugable::plugin::Plugin, program::ProgramBuilder, tokio};
 
 #[tokio::main]
@@ -15,6 +16,7 @@ async fn main() {
         .add_plugin(HealthyModule)
         .add_plugin(HomeModule)
         .add_plugin(WebPlugin)
+        .init_tracing()
         .run()
         .await
 }
