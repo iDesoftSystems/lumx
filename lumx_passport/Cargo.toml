@@ -1,0 +1,13 @@
+[package]
+name = "lumx_passport"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+lumx_axum = { workspace = true }
+lumx_core = { workspace = true }
+passport_jwt = { workspace = true }
+passport_core = { workspace = true }
