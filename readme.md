@@ -1,12 +1,14 @@
 # What's Lumx?
 
-`Lumx` is a lightweight, modular application framework designed to prioritize simplicity and flexibility. It features an easily extensible plug-in architecture, enabling seamless integration with other prominent Rust community projects, such as axum, sea-orm, and many others.
+`Lumx` is a lightweight, modular application framework designed to prioritize simplicity and flexibility. It features an
+easily extensible plug-in architecture, enabling seamless integration with other prominent Rust community projects, such
+as axum, sea-orm, and many others.
 
 ## Getting Started
 
 Add to your `Cargo.toml` dependencies:
 
-```yml
+```toml
 [dependencies]
 lumx_core = { git = "https://github.com/iDesoftSystems/lumx.git", branch = "main" }
 lumx_axum = { git = "https://github.com/iDesoftSystems/lumx.git", branch = "main" }
@@ -25,8 +27,10 @@ use lumx_core::{program::Program, tokio};
 #[tokio::main]
 async fn main() {
     Program::new()
-        .add_router(router())
+        .with_envs()
+        .collect_tracing()
         .add_plugin(WebPlugin)
+        .add_router(router())
         .run()
         .await
 }
