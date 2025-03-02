@@ -1,7 +1,3 @@
-use dashmap::DashMap;
-use std::any::TypeId;
-use std::{collections::HashSet, future::Future, sync::Arc};
-
 use crate::types::GetComponentFailure;
 use crate::{
     plugable::{
@@ -11,6 +7,12 @@ use crate::{
     scheduler::Scheduler,
     types::ProgramFailure,
 };
+use dashmap::DashMap;
+use std::any::TypeId;
+use std::{collections::HashSet, future::Future, sync::Arc};
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
+use tracing_subscriber::{fmt, EnvFilter};
 
 pub type Registry<T> = DashMap<TypeId, T>;
 
@@ -166,6 +168,26 @@ impl ProgramBuilder {
         self
     }
 
+    /// Init and read env variables
+    pub fn with_envs(&mut self) -> &mut Self {
+        dotenvy::dotenv().ok();
+
+        self
+    }
+
+    /// Collect and subscribe tracing
+    pub fn collect_tracing(&mut self) -> &mut Self {
+        tracing_subscriber::registry()
+            .with(
+                EnvFilter::try_from_default_env()
+                    .unwrap_or_else(|_| format!("{}=info", env!("CARGO_CRATE_NAME")).into()),
+            )
+            .with(fmt::layer())
+            .init();
+
+        self
+    }
+
     /// Build registered plugins
     async fn build_plugins(&mut self) {
         let registry = std::mem::take(&mut self.plugin_registry);
@@ -214,26 +236,20 @@ impl ProgramBuilder {
     }
 
     async fn inner_run(&mut self) -> Result<Arc<Program>, ProgramFailure> {
-        // 1. read env variables
-        dotenvy::dotenv().ok();
-
-        // 2. build plugins
+        // 1. build plugins
         self.build_plugins().await;
 
-        // 3. schedule
+        // 2. schedule
         self.schedule().await
     }
 
     /// Unlike the [`run`] method, the [`build`] method is suitable for applications that do not contain scheduling logic.
     /// This method returns the built Program.
     pub async fn build(&mut self) -> Arc<Program> {
-        // 1. read env variables
-        dotenvy::dotenv().ok();
-
-        // 2. build plugins
+        // 1. build plugins
         self.build_plugins().await;
 
-        // 3. build program
+        // 2. build program
         self.build_program()
     }
 
