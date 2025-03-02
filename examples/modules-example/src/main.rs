@@ -5,7 +5,6 @@ use lumx_axum::{
     plugin::WebPlugin,
     router::ProgramRoutable,
 };
-use lumx_core::tracer::InitTracing;
 use lumx_core::{plugable::plugin::Plugin, program::ProgramBuilder, tokio};
 
 #[tokio::main]
@@ -13,10 +12,11 @@ async fn main() {
     env::set_var("RUST_LOG", "debug");
 
     lumx_core::program::Program::new()
+        .with_envs()
+        .collect_tracing()
         .add_plugin(HealthyModule)
         .add_plugin(HomeModule)
         .add_plugin(WebPlugin)
-        .init_tracing()
         .run()
         .await
 }

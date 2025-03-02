@@ -3,15 +3,15 @@ use lumx_axum::{
     plugin::WebPlugin,
     router::ProgramRoutable,
 };
-use lumx_core::tracer::InitTracing;
 use lumx_core::{program::Program, tokio};
 
 #[tokio::main]
 async fn main() {
     Program::new()
-        .add_router(router())
+        .with_envs()
+        .collect_tracing()
         .add_plugin(WebPlugin)
-        .init_tracing()
+        .add_router(router())
         .run()
         .await
 }
