@@ -48,8 +48,7 @@ impl WebPlugin {
             .layer(StateLayer::new(Arc::clone(&app)))
             .layer(TraceLayer::new_for_http());
 
-        println!("Listening on {}", listener.local_addr().unwrap());
-        println!("Ctrl-C to shutdown server");
+        println!("Listening on http://{}", listener.local_addr().unwrap());
 
         let server = axum::serve(listener, router.into_make_service());
         server
