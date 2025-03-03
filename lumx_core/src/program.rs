@@ -1,3 +1,4 @@
+use crate::banner;
 use crate::types::GetComponentFailure;
 use crate::{
     plugable::{
@@ -236,6 +237,8 @@ impl ProgramBuilder {
     }
 
     async fn inner_run(&mut self) -> Result<Arc<Program>, ProgramFailure> {
+        banner::print_banner();
+
         // 1. build plugins
         self.build_plugins().await;
 
