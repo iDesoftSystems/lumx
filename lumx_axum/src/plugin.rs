@@ -29,7 +29,12 @@ impl Plugin for WebPlugin {
 
 impl WebPlugin {
     async fn schedule(app: Arc<Program>, router: Router) -> Result<String, ProgramFailure> {
-        let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+        let port: u16 = std::env::var("PORT")
+            .unwrap_or_else(|_| "8080".into())
+            .parse()
+            .expect("PORT must be a number");
+
+        let addr = SocketAddr::from(([0, 0, 0, 0], port));
 
         let listener = tokio::net::TcpListener::bind(addr)
             .await
