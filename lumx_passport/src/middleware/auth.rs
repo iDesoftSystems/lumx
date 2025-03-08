@@ -40,7 +40,7 @@ pub async fn jwt_auth(mut req: Request, next: Next) -> Result<Response, JwtAuthE
 
     let auth_header = match header_value {
         None => Err(JwtAuthError {
-            message: "Please add the JWT token to the header".into(),
+            message: "Please add the authorization header".into(),
             status_code: StatusCode::FORBIDDEN,
         }),
         Some(header) => header.to_str().map_err(|_| JwtAuthError {
@@ -51,7 +51,15 @@ pub async fn jwt_auth(mut req: Request, next: Next) -> Result<Response, JwtAuthE
 
     let mut header = auth_header.split_whitespace();
 
-    let (_, token) = (header.next(), header.next());
+    let (_, maybe_token) = (header.next(), header.next());
+
+    let token = match maybe_token {
+        None => Err(JwtAuthError {
+            message: "Please add the JWT token to the header".into(),
+            status_code: StatusCode::FORBIDDEN,
+        })?,
+        Some(token) => token,
+    };
 
     let decoder = match program.get_component::<AccessTokenDecoder>() {
         None => Err(JwtAuthError {
@@ -61,7 +69,7 @@ pub async fn jwt_auth(mut req: Request, next: Next) -> Result<Response, JwtAuthE
         Some(decoder) => decoder,
     };
 
-    let claims_principal = match decoder.decode_access_token(token.unwrap().into()).await {
+    let claims_principal = match decoder.decode_access_token(token.into()).await {
         Ok(authentication) => authentication,
         Err(err) => Err(JwtAuthError {
             message: err.to_string(),
