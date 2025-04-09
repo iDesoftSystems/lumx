@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 lumx_core = { path = "./../../lumx_core" }
 lumx_axum = { path = "./../../lumx_axum" }
+serde = { version = "1.0", features = ["derive"] }

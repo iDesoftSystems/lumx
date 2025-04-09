@@ -37,10 +37,10 @@ impl<T: Clone> Deref for Component<T> {
     }
 }
 
-#[async_trait::async_trait]
 impl<T, S> FromRequestParts<S> for Component<T>
 where
     T: Clone + Send + Sync + 'static,
+    S: Send + Sync,
 {
     type Rejection = (StatusCode, axum::Json<FailureReply>);
 
