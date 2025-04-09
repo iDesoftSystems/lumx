@@ -23,8 +23,8 @@ tokio = { version = "1.41.1", features = ["full"] }
 async-trait = "0.1"
 tracing = "0.1"
 serde = { version = "1.0.215", features = ["derive"] }
-axum = { version = "0.7" }
-thiserror = { version = "1.0" }
+axum = { version = "0.8" }
+thiserror = { version = "2.0" }
 tower-http = { version = "0.6.2", features = ["trace"] }
 tower = { version = "0.5.2", features = ["util"] }
 lumx_core = { path = "./lumx_core" }

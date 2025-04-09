@@ -1,4 +1,5 @@
-use axum::{async_trait, Extension, Router};
+use async_trait::async_trait;
+use axum::{Extension, Router};
 use lumx_core::{
     plugable::plugin::Plugin,
     program::{Program, ProgramBuilder},
@@ -48,7 +49,7 @@ impl WebPlugin {
             .layer(StateLayer::new(Arc::clone(&app)))
             .layer(TraceLayer::new_for_http());
 
-        println!("Listening on http://{}", listener.local_addr().unwrap());
+        println!("Listening on {}", listener.local_addr().unwrap());
 
         let server = axum::serve(listener, router.into_make_service());
         server
