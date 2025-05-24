@@ -8,6 +8,7 @@ repository.workspace = true
 
 [dependencies]
 lumx_core = { workspace = true }
+lumx_domain = { workspace = true }
 axum = { workspace = true }
 async-trait = { workspace = true }
 tokio = { workspace = true }

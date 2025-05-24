@@ -3,7 +3,7 @@ use lumx_axum::axum::http::StatusCode;
 use lumx_axum::axum::middleware::Next;
 use lumx_axum::axum::response::{IntoResponse, Response};
 use lumx_axum::axum::{http, Json};
-use lumx_axum::types::FailureReply;
+use lumx_axum::types::failure::FailureReply;
 use lumx_core::program::Program;
 use passport_core::decoder::DecodeAccessToken;
 use passport_jwt::decoder::AccessTokenDecoder;

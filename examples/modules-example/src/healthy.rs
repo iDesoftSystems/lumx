@@ -1,12 +1,12 @@
 use lumx_axum::axum::extract::Path;
-use lumx_axum::axum::http::StatusCode;
-use lumx_axum::axum::response::IntoResponse;
-use lumx_axum::axum::{routing, Json, Router};
+use lumx_axum::axum::{routing, Router};
+use lumx_axum::replier::Replier;
+use lumx_axum::result::ApiResult;
 use lumx_axum::router::ProgramRoutable;
+use lumx_axum::types::created::Created;
 use lumx_core::async_trait::async_trait;
 use lumx_core::plugable::plugin::Plugin;
 use lumx_core::program::ProgramBuilder;
-use serde::Serialize;
 
 pub struct HealthyModule;
 
@@ -21,11 +21,6 @@ impl Plugin for HealthyModule {
     }
 }
 
-#[derive(Serialize, Debug)]
-struct ResourceInfo {
-    id: i32,
-}
-
-pub async fn find_resource(Path(resource_id): Path<i32>) -> Result<impl IntoResponse, StatusCode> {
-    Ok(Json(ResourceInfo { id: resource_id }))
+pub async fn find_resource(Path(resource_id): Path<i32>) -> ApiResult<Created<i32>> {
+    Ok(Replier::ok(Created::new(resource_id)))
 }
