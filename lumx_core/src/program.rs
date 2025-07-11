@@ -170,7 +170,7 @@ impl ProgramBuilder {
     }
 
     /// Init and read env variables
-    pub fn with_envs(&mut self) -> &mut Self {
+    pub fn load_envs(&mut self) -> &mut Self {
         dotenvy::dotenv().ok();
 
         self
