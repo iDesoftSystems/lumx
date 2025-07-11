@@ -8,7 +8,7 @@ use lumx_core::{program::Program, tokio};
 #[tokio::main]
 async fn main() {
     Program::new()
-        .with_envs()
+        .load_envs()
         .collect_tracing()
         .add_plugin(WebPlugin)
         .add_router(router())

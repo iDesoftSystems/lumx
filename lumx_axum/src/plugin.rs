@@ -1,3 +1,5 @@
+use crate::middleware::state::StateLayer;
+use crate::{router::RouterRef, state::AppState};
 use async_trait::async_trait;
 use axum::{Extension, Router};
 use lumx_core::{
@@ -8,10 +10,6 @@ use lumx_core::{
 use std::ops::Deref;
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::trace::TraceLayer;
-use tracing::debug;
-
-use crate::middleware::state::StateLayer;
-use crate::{router::RouterRef, state::AppState};
 
 pub struct WebPlugin;
 
@@ -41,7 +39,6 @@ impl WebPlugin {
             .await
             .expect(format!("bind tcp listener failed: {}", addr).as_str());
 
-        debug!(?router, "registered routes");
         let router = router
             .layer(Extension(AppState {
                 app: Arc::clone(&app),

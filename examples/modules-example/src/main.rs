@@ -8,7 +8,7 @@ async fn main() {
     env::set_var("RUST_LOG", "debug");
 
     lumx_core::program::Program::new()
-        .with_envs()
+        .load_envs()
         .collect_tracing()
         .add_plugin(healthy::HealthyModule)
         .add_plugin(home::HomeModule)
