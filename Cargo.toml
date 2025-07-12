@@ -1,4 +1,6 @@
 [workspace]
+resolver = "3"
+exclude = ["examples/**"]
 members = [
     "lumx_core",
     "lumx_sea_orm",
@@ -7,25 +9,24 @@ members = [
     "lumx_passport",
     "examples/*",
 ]
-resolver = "2"
-exclude = ["examples/**"]
 
 [workspace.package]
-edition = "2021"
+version = "0.1.0"
+edition = "2024"
 license = "MIT"
 authors = ["edinsonjim"]
 repository = "https://github.com/iDesoftSystems/lumx"
 
 [workspace.dependencies]
-log = "0.4"
-env_logger = { version = "0.11.5" }
+log = "0.4.27"
+env_logger = { version = "0.11.8" }
 tokio = { version = "1.46", features = ["full"] }
-async-trait = "0.1"
-tracing = "0.1"
-serde = { version = "1.0", features = ["derive"] }
-axum = { version = "0.8" }
-thiserror = { version = "2.0" }
-tower-http = { version = "0.6.2", features = ["trace"] }
+async-trait = "0.1.88"
+tracing = "0.1.41"
+serde = { version = "1.0.219", features = ["derive"] }
+axum = { version = "0.8.4" }
+thiserror = { version = "2.0.12" }
+tower-http = { version = "0.6.6", features = ["trace"] }
 tower = { version = "0.5.2", features = ["util"] }
 lumx_core = { path = "./lumx_core" }
 lumx_axum = { path = "./lumx_axum" }
