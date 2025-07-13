@@ -2,7 +2,7 @@
 
 `Lumx` is a lightweight, modular application framework designed to prioritize simplicity and flexibility. It features an
 easily extensible plug-in architecture, enabling seamless integration with other prominent Rust community projects, such
-as axum, sea-orm, and many others.
+as `axum`, `sea-orm`, and many others.
 
 ## Getting Started
 
@@ -27,7 +27,7 @@ use lumx_core::{program::Program, tokio};
 #[tokio::main]
 async fn main() {
     Program::new()
-        .with_envs()
+        .load_envs()
         .collect_tracing()
         .add_plugin(WebPlugin)
         .add_router(router())
