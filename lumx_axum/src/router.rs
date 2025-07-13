@@ -26,3 +26,7 @@ pub trait ProgramRoutable {
     /// add route to app registry
     fn add_router(&mut self, other_router: Router) -> &mut Self;
 }
+
+pub trait IntoService {
+    fn into_service(self) -> axum::Router;
+}

@@ -1,7 +1,12 @@
-use axum::Router;
-use lumx_core::program::ProgramBuilder;
+use std::{ops::Deref, sync::Arc};
 
-use crate::router::{ProgramRoutable, RouterRef};
+use axum::{Extension, Router};
+use lumx_core::program::{Program, ProgramBuilder};
+
+use crate::{
+    router::{IntoService, ProgramRoutable, RouterRef},
+    state::AppState,
+};
 
 impl ProgramRoutable for ProgramBuilder {
     fn add_router(&mut self, other_router: Router) -> &mut Self {
@@ -15,5 +20,16 @@ impl ProgramRoutable for ProgramBuilder {
         }
 
         self
+    }
+}
+
+impl IntoService for Arc<Program> {
+    fn into_service(self) -> axum::Router {
+        let router_ref = self.get_expect_component::<RouterRef>();
+
+        let mutex = router_ref.0.lock().unwrap();
+        let router = mutex.deref().to_owned();
+
+        router.layer(Extension(AppState { app: self.clone() }))
     }
 }

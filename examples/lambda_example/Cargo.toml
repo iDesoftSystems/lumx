@@ -1,0 +1,11 @@
+[package]
+name = "lambda_example"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+lumx_core = { path = "./../../lumx_core" }
+lumx_axum = { path = "./../../lumx_axum" }
+
+lambda_http = "0.15"
+serde = { version = "1.0", features = ["derive"] }
