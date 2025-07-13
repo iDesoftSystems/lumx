@@ -1,4 +1,5 @@
 use crate::banner;
+use crate::scheduler::SchedulerResult;
 use crate::types::GetComponentFailure;
 use crate::{
     plugable::{
@@ -6,14 +7,14 @@ use crate::{
         plugin::{Plugin, PluginRef},
     },
     scheduler::Scheduler,
-    types::ProgramFailure,
+    types::ProgramBuilderError,
 };
 use dashmap::DashMap;
 use std::any::TypeId;
 use std::{collections::HashSet, future::Future, sync::Arc};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt};
 
 pub type Registry<T> = DashMap<TypeId, T>;
 
@@ -99,7 +100,9 @@ impl ProgramBuilder {
         log::debug!("added component: {}", component_name);
 
         if self.components.contains_key(&component_id) {
-            panic!("Error adding component {component_name}: component was already added in application");
+            panic!(
+                "Error adding component {component_name}: component was already added in application"
+            );
         }
 
         self.components
@@ -145,7 +148,7 @@ impl ProgramBuilder {
 
     /// Add plugin
     pub fn add_plugin<T: Plugin>(&mut self, plugin: T) -> &mut Self {
-        log::debug!("added plugin {}", plugin.name());
+        log::debug!("adding plugin {}", &plugin.name());
 
         let plugin_id = TypeId::of::<T>();
         if self.plugin_registry.contains_key(&plugin_id) {
@@ -162,8 +165,7 @@ impl ProgramBuilder {
     /// Add a scheduled task
     pub fn add_schedule<T>(&mut self, scheduler: T) -> &mut Self
     where
-        T: FnOnce(Arc<Program>) -> Box<dyn Future<Output = Result<String, ProgramFailure>> + Send>
-            + 'static,
+        T: FnOnce(Arc<Program>) -> Box<dyn Future<Output = SchedulerResult> + Send> + 'static,
     {
         self.schedulers.push(Box::new(scheduler));
         self
@@ -210,6 +212,7 @@ impl ProgramBuilder {
                     plugin.build(self).await;
                     registered.insert(plugin.name().to_string());
                     log::info!("{} plugin registered", plugin.name());
+
                     progress = true;
                 } else {
                     next_round.push(plugin);
@@ -229,14 +232,14 @@ impl ProgramBuilder {
     /// The `run` method is suitable for applications that contain scheduling logic.
     pub async fn run(&mut self) {
         match self.inner_run().await {
-            Ok(_program) => {}
+            Ok(_) => {}
             Err(err) => {
-                log::error!("{:?}", err);
+                log::error!("failed to run program with err {}", err);
             }
         }
     }
 
-    async fn inner_run(&mut self) -> Result<Arc<Program>, ProgramFailure> {
+    async fn inner_run(&mut self) -> Result<(), ProgramBuilderError> {
         banner::print_banner();
 
         // 1. build plugins
@@ -261,23 +264,21 @@ impl ProgramBuilder {
         Arc::new(Program { components })
     }
 
-    async fn schedule(&mut self) -> Result<Arc<Program>, ProgramFailure> {
+    async fn schedule(&mut self) -> Result<(), ProgramBuilderError> {
         let program = self.build_program();
 
         while let Some(task) = self.schedulers.pop() {
-            let poll_future = task(program.clone());
+            let poll_future = task(Arc::clone(&program));
             let poll_future = Box::into_pin(poll_future);
 
-            let spawn_res = tokio::spawn(poll_future)
-                .await
-                .map_err(|err| ProgramFailure::Scheduler(err.to_string()))?;
+            let spawn_res = tokio::spawn(poll_future).await?;
 
             match spawn_res {
-                Ok(msg) => log::info!("scheduled result: {}", msg),
-                Err(err) => log::info!("{}", err),
+                Ok(msg) => log::info!("scheduled with result: {}", msg),
+                Err(err) => log::error!("failed on schedule with err {}", err),
             }
         }
 
-        Ok(program)
+        Ok(())
     }
 }

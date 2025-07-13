@@ -2,10 +2,10 @@ use crate::middleware::state::StateLayer;
 use crate::{router::RouterRef, state::AppState};
 use async_trait::async_trait;
 use axum::{Extension, Router};
+use lumx_core::scheduler::SchedulerError;
 use lumx_core::{
     plugable::plugin::Plugin,
     program::{Program, ProgramBuilder},
-    types::ProgramFailure,
 };
 use std::ops::Deref;
 use std::{net::SocketAddr, sync::Arc};
@@ -27,7 +27,7 @@ impl Plugin for WebPlugin {
 }
 
 impl WebPlugin {
-    async fn schedule(app: Arc<Program>, router: Router) -> Result<String, ProgramFailure> {
+    async fn schedule(app: Arc<Program>, router: Router) -> Result<String, SchedulerError> {
         let port: u16 = std::env::var("PORT")
             .unwrap_or_else(|_| "8080".into())
             .parse()
@@ -49,9 +49,7 @@ impl WebPlugin {
         println!("Listening on {}", listener.local_addr().unwrap());
 
         let server = axum::serve(listener, router.into_make_service());
-        server
-            .await
-            .map_err(|err| ProgramFailure::Scheduler(err.to_string()))?;
+        server.await?;
 
         Ok("axum schedule finished".to_string())
     }
