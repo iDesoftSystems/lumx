@@ -1137,6 +1137,7 @@ dependencies = [
  "lambda_http",
  "lumx_axum",
  "lumx_core",
+ "lumx_sea_orm",
  "serde",
 ]
 

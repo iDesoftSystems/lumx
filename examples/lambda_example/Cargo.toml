@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 lumx_core = { path = "./../../lumx_core" }
 lumx_axum = { path = "./../../lumx_axum" }
+lumx_sea_orm = { path = "./../../lumx_sea_orm" }
 
 lambda_http = "0.15"
 serde = { version = "1.0", features = ["derive"] }

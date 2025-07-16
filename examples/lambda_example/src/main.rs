@@ -6,6 +6,7 @@ use lumx_axum::{
     router::{IntoService, ProgramRoutable},
 };
 use lumx_core::{program::Program, tokio};
+use lumx_sea_orm::plugin::SeaOrmPlugin;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -13,6 +14,7 @@ async fn main() -> Result<(), Error> {
         .load_envs()
         .collect_tracing()
         .add_plugin(WebPlugin)
+        .add_plugin(SeaOrmPlugin)
         .add_router(router())
         .build()
         .await;
