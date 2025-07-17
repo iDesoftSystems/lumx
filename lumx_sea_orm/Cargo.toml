@@ -12,9 +12,11 @@ sqlite = ["sea-orm/sqlx-sqlite", "sea-orm/runtime-tokio-rustls"]
 
 [dependencies]
 lumx_core = { workspace = true }
+lumx_types = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
 sea-orm = { version = "1.0", features = [
     "sqlx-mysql",
     "sqlx-sqlite",
     "runtime-tokio-rustls",
 ] }
-async-trait = { workspace = true }
