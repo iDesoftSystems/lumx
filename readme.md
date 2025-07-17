@@ -18,7 +18,7 @@ You can now build your program and easily integrate plugins.
 
 ```rust
 use lumx_axum::{
-    axum::{routing, Router},
+    axum::{Router, routing},
     plugin::WebPlugin,
     router::ProgramRoutable,
 };
@@ -26,7 +26,7 @@ use lumx_core::{program::Program, tokio};
 
 #[tokio::main]
 async fn main() {
-    Program::new()
+    Program::builder()
         .load_envs()
         .collect_tracing()
         .add_plugin(WebPlugin)
