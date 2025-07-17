@@ -8,6 +8,7 @@ members = [
     "lumx_axum_test",
     "lumx_passport",
     "lumx_types",
+    "examples/*",
 ]
 
 [workspace.package]

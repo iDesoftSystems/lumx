@@ -24,7 +24,7 @@ pub struct Program {
 }
 
 impl Program {
-    pub fn new() -> ProgramBuilder {
+    pub fn builder() -> ProgramBuilder {
         ProgramBuilder::default()
     }
 
@@ -65,6 +65,7 @@ impl Program {
     }
 }
 
+#[derive(Default)]
 pub struct ProgramBuilder {
     /// Components
     components: Registry<ComponentRef>,
@@ -78,16 +79,6 @@ pub struct ProgramBuilder {
 
 unsafe impl Send for ProgramBuilder {}
 unsafe impl Sync for ProgramBuilder {}
-
-impl Default for ProgramBuilder {
-    fn default() -> Self {
-        Self {
-            components: Default::default(),
-            plugin_registry: Default::default(),
-            schedulers: Default::default(),
-        }
-    }
-}
 
 impl ProgramBuilder {
     /// Add component to the registry

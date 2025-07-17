@@ -37,7 +37,7 @@ impl WebPlugin {
 
         let listener = tokio::net::TcpListener::bind(addr)
             .await
-            .expect(format!("bind tcp listener failed: {}", addr).as_str());
+            .unwrap_or_else(|_| panic!("bind tcp listener failed: {addr}"));
 
         let router = router
             .layer(Extension(AppState {
