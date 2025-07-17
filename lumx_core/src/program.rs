@@ -97,7 +97,7 @@ impl ProgramBuilder {
     {
         let component_id = TypeId::of::<T>();
         let component_name = std::any::type_name::<T>();
-        log::debug!("added component: {}", component_name);
+        log::debug!("added component: {component_name}");
 
         if self.components.contains_key(&component_id) {
             panic!(
@@ -234,7 +234,7 @@ impl ProgramBuilder {
         match self.inner_run().await {
             Ok(_) => {}
             Err(err) => {
-                log::error!("failed to run program with err {}", err);
+                log::error!("failed to run program with err {err}");
             }
         }
     }
@@ -274,8 +274,8 @@ impl ProgramBuilder {
             let spawn_res = tokio::spawn(poll_future).await?;
 
             match spawn_res {
-                Ok(msg) => log::info!("scheduled with result: {}", msg),
-                Err(err) => log::error!("failed on schedule with err {}", err),
+                Ok(msg) => log::info!("scheduled with result: {msg}"),
+                Err(err) => log::error!("failed on schedule with err {err}"),
             }
         }
 
