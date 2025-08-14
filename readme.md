@@ -4,6 +4,14 @@
 easily extensible plug-in architecture, enabling seamless integration with other prominent Rust community projects, such
 as `axum`, `sea-orm`, and many others.
 
+> [!WARNING]
+>
+> **Project in Active Development**
+>
+> This project is currently in active development. It is **not yet ready for production use.**
+>
+> We are working hard to make it stable and feature-complete, but until then, please be aware that you may encounter bugs, incomplete features, and frequent changes. Your patience and any contributions are greatly appreciated.
+
 ## Getting Started
 
 Add to your `Cargo.toml` dependencies:
