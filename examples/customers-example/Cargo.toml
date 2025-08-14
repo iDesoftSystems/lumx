@@ -1,0 +1,17 @@
+[package]
+name = "customers-example"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+lumx_core = { path = "./../../lumx_core" }
+lumx_axum = { path = "./../../lumx_axum" }
+lumx_types = { path = "./../../lumx_types" }
+lumx_sea_orm = { path = "./../../lumx_sea_orm" }
+validator = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+sea-orm = { version = "1.1" }
